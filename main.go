@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,12 +19,33 @@ import (
 
 func setHeaders(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	if !auth.IsAuthed(r) {
-		misc.RequestLog.Printf("%-17s %9s %s", "["+strings.Split(r.RemoteAddr, ":")[0]+"]", "["+r.Method+"]", r.RequestURI)
+		var headers string
+		for key, values := range r.Header {
+			for _, value := range values {
+				headers += fmt.Sprintf("%s: %s\n", key, value)
+			}
+		}
+		misc.RequestLog.Printf("%-17s %9s %s\n%s", "["+strings.Split(r.RemoteAddr, ":")[0]+"]", "["+r.Method+"]", r.RequestURI, headers)
 	}
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	origin := r.Header.Get("Origin")
+
+	if origin != "" && origin != "null" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Requested-With, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Max-Age", "86400")
+	w.Header().Set("Etag", "W/\"6f2d9-8b3a7c5f0d1e2g3h4i5j6k7l8m9n0p1q\"")
+	w.Header().Set("Server", " Google Frontend")
+	w.Header().Set("X-Xss-Protection", " mode=block")
+	w.Header().Set("X-Content-Type-Options", " nosniff")
+	w.Header().Set("X-Frame-Options", " deny")
+	w.Header().Set("Content-Security-Policy", " default-src 'none'; script-src 'none'")
 
 	if r.Method == "OPTIONS" {
 		return

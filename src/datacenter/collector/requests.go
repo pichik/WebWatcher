@@ -14,7 +14,6 @@ var baitContent []byte
 
 func Bait(w http.ResponseWriter, r *http.Request) {
 	throwBait(w)
-	w.WriteHeader(http.StatusOK)
 
 	misc.DebugLog.Printf("[Sending Bait] [%s]%s", r.Method, r.RequestURI)
 }
@@ -44,15 +43,15 @@ func SimpleCollect(w http.ResponseWriter, r *http.Request, next http.HandlerFunc
 	misc.DebugLog.Printf("[Request Collecting] [%s]%s", r.Method, r.RequestURI)
 
 	var data = datacenter.Data{
-		IP:         strings.Split(r.RemoteAddr, ":")[0],
-		Method:     r.Method,
-		Origin:     r.Header.Get("Origin"),
-		Referrer:   r.Header.Get("Referer"),
-		UserAgent:  r.UserAgent(),
-		Location:   r.URL.RequestURI(),
-		HASH:       datacenter.CreateHash("request"),
-		Collection: "Simple",
-		Timestamp: 	time.Now().Unix(),
+		IP:          strings.Split(r.RemoteAddr, ":")[0],
+		Method:      r.Method,
+		Origin:      r.Header.Get("Origin"),
+		Referrer:    r.Header.Get("Referer"),
+		UserAgent:   r.UserAgent(),
+		Location:    r.URL.RequestURI(),
+		HASH:        datacenter.CreateHash("request"),
+		Collection:  "Simple",
+		Timestamp:   time.Now().Unix(),
 		BrowserTime: time.Now().Format("02.01.2006 | 15:04:05"),
 	}
 	datacenter.AddToCollection(&data)

@@ -2,9 +2,10 @@ package collector
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"fmt"
+	"strconv"
 
 	"github.com/pichik/webwatcher/src/datacenter"
 	"github.com/pichik/webwatcher/src/misc"
@@ -20,10 +21,13 @@ func ImportTemplate() {
 }
 
 func throwBait(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", fmt.Sprintf("text/javascript"))
+	w.Header().Set("Content-Type", fmt.Sprintf("text/javascript; charset=utf-8"))
+	w.Header().Set("Content-Length", strconv.Itoa(len(baitContent)))
+	w.WriteHeader(http.StatusOK)
+
 	_, err := w.Write(baitContent)
 	if err != nil {
-		misc.ErrorLog.Printf("%s", err)
+		misc.ErrorLog.Printf("Error throwing bait: %s", err)
 	}
 }
 
